@@ -1,0 +1,730 @@
+[
+  {
+    "id": "glaceon",
+    "file": "glaceon.png",
+    "sourceBox": [
+      40,
+      39,
+      202,
+      228
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "sylveon",
+    "file": "sylveon.png",
+    "sourceBox": [
+      239,
+      38,
+      396,
+      224
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "leafeon",
+    "file": "leafeon.png",
+    "sourceBox": [
+      432,
+      38,
+      595,
+      213
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "ditto",
+    "file": "ditto.png",
+    "sourceBox": [
+      627,
+      40,
+      818,
+      202
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "flareon",
+    "file": "flareon.png",
+    "sourceBox": [
+      872,
+      42,
+      1042,
+      205
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "chikorita",
+    "file": "chikorita.png",
+    "sourceBox": [
+      1120,
+      31,
+      1275,
+      217
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "ditto-hat",
+    "file": "ditto-hat.png",
+    "sourceBox": [
+      1347,
+      31,
+      1561,
+      217
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "vaporeon",
+    "file": "vaporeon.png",
+    "sourceBox": [
+      29,
+      272,
+      211,
+      460
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "squirtle",
+    "file": "squirtle.png",
+    "sourceBox": [
+      250,
+      290,
+      411,
+      471
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "charmander",
+    "file": "charmander.png",
+    "sourceBox": [
+      417,
+      271,
+      593,
+      463
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "jolteon",
+    "file": "jolteon.png",
+    "sourceBox": [
+      636,
+      247,
+      814,
+      458
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "chimchar",
+    "file": "chimchar.png",
+    "sourceBox": [
+      848,
+      275,
+      1006,
+      475
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "turtwig",
+    "file": "turtwig.png",
+    "sourceBox": [
+      1051,
+      274,
+      1226,
+      458
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "wobbuffet-hat",
+    "file": "wobbuffet-hat.png",
+    "sourceBox": [
+      1270,
+      278,
+      1409,
+      453
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "torchic",
+    "file": "torchic.png",
+    "sourceBox": [
+      1421,
+      268,
+      1555,
+      468
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "bulbasaur",
+    "file": "bulbasaur.png",
+    "sourceBox": [
+      32,
+      556,
+      218,
+      702
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "pikachu",
+    "file": "pikachu.png",
+    "sourceBox": [
+      254,
+      537,
+      401,
+      690
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "tepig",
+    "file": "tepig.png",
+    "sourceBox": [
+      439,
+      506,
+      591,
+      705
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "snivy",
+    "file": "snivy.png",
+    "sourceBox": [
+      638,
+      511,
+      795,
+      695
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "piplup",
+    "file": "piplup.png",
+    "sourceBox": [
+      858,
+      521,
+      993,
+      687
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "treecko",
+    "file": "treecko.png",
+    "sourceBox": [
+      1037,
+      528,
+      1194,
+      683
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "totodile",
+    "file": "totodile.png",
+    "sourceBox": [
+      1234,
+      522,
+      1400,
+      716
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "charmander-side",
+    "file": "charmander-side.png",
+    "sourceBox": [
+      1439,
+      557,
+      1562,
+      706
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "oshawott",
+    "file": "oshawott.png",
+    "sourceBox": [
+      41,
+      780,
+      184,
+      963
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "pikachu-flower",
+    "file": "pikachu-flower.png",
+    "sourceBox": [
+      237,
+      746,
+      394,
+      930
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "togepi",
+    "file": "togepi.png",
+    "sourceBox": [
+      458,
+      773,
+      609,
+      931
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "togepi-hat",
+    "file": "togepi-hat.png",
+    "sourceBox": [
+      655,
+      746,
+      824,
+      931
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "eevee-hat",
+    "file": "eevee-hat.png",
+    "sourceBox": [
+      879,
+      743,
+      1059,
+      938
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "gengar",
+    "file": "gengar.png",
+    "sourceBox": [
+      1104,
+      743,
+      1310,
+      921
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "jigglypuff",
+    "file": "jigglypuff.png",
+    "sourceBox": [
+      1355,
+      734,
+      1561,
+      929
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "pikachu-hat",
+    "file": "pikachu-hat.png",
+    "sourceBox": [
+      44,
+      1007,
+      195,
+      1189
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "meowth",
+    "file": "meowth.png",
+    "sourceBox": [
+      232,
+      976,
+      432,
+      1162
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "bulbasaur-rest",
+    "file": "bulbasaur-rest.png",
+    "sourceBox": [
+      462,
+      988,
+      641,
+      1148
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "pikachu-berry",
+    "file": "pikachu-berry.png",
+    "sourceBox": [
+      671,
+      955,
+      833,
+      1160
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "slowpoke",
+    "file": "slowpoke.png",
+    "sourceBox": [
+      869,
+      983,
+      1031,
+      1164
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "froakie",
+    "file": "froakie.png",
+    "sourceBox": [
+      1063,
+      980,
+      1198,
+      1144
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "horsea",
+    "file": "horsea.png",
+    "sourceBox": [
+      1245,
+      968,
+      1377,
+      1149
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "oshawott-side",
+    "file": "oshawott-side.png",
+    "sourceBox": [
+      1410,
+      987,
+      1553,
+      1154
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "chikorita-rest",
+    "file": "chikorita-rest.png",
+    "sourceBox": [
+      48,
+      1231,
+      200,
+      1348
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "chikorita-side",
+    "file": "chikorita-side.png",
+    "sourceBox": [
+      282,
+      1208,
+      407,
+      1350
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "mudkip-rest",
+    "file": "mudkip-rest.png",
+    "sourceBox": [
+      494,
+      1180,
+      651,
+      1356
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "piplup-side",
+    "file": "piplup-side.png",
+    "sourceBox": [
+      733,
+      1189,
+      874,
+      1346
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "squirtle-rest",
+    "file": "squirtle-rest.png",
+    "sourceBox": [
+      933,
+      1189,
+      1125,
+      1323
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "espeon-rest",
+    "file": "espeon-rest.png",
+    "sourceBox": [
+      1185,
+      1191,
+      1346,
+      1312
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "cyndaquil",
+    "file": "cyndaquil.png",
+    "sourceBox": [
+      1404,
+      1167,
+      1563,
+      1345
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "eevee-berry",
+    "file": "eevee-berry.png",
+    "sourceBox": [
+      35,
+      1390,
+      185,
+      1565
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "mudkip",
+    "file": "mudkip.png",
+    "sourceBox": [
+      222,
+      1369,
+      394,
+      1579
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "bulbasaur-hat",
+    "file": "bulbasaur-hat.png",
+    "sourceBox": [
+      450,
+      1406,
+      618,
+      1572
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "espeon",
+    "file": "espeon.png",
+    "sourceBox": [
+      673,
+      1375,
+      869,
+      1578
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "eevee",
+    "file": "eevee.png",
+    "sourceBox": [
+      916,
+      1378,
+      1105,
+      1579
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "umbreon",
+    "file": "umbreon.png",
+    "sourceBox": [
+      1167,
+      1363,
+      1346,
+      1575
+    ],
+    "size": [
+      256,
+      256
+    ]
+  },
+  {
+    "id": "squirtle-hat",
+    "file": "squirtle-hat.png",
+    "sourceBox": [
+      1415,
+      1374,
+      1556,
+      1570
+    ],
+    "size": [
+      256,
+      256
+    ]
+  }
+]
