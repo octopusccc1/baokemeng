@@ -58,19 +58,36 @@ function createPresence({sessionValid,worldFile}) {
   function sendDuel(client,duel){if(!client||!clients.has(client.id))return;send(client,`event: duel\ndata: ${JSON.stringify(duelFor(duel,client.player.id))}\n\n`);}
   function broadcastDuel(duel){for(const client of clients.values())if(client.player.id===duel.initiatorId||client.player.id===duel.receiverId)sendDuel(client,duel);}
   function clientForPlayer(id){return [...clients.values()].filter(client=>client.player.id===id).sort((a,b)=>b.order-a.order)[0];}
-  function activeMon(player){return player.save?.party?.find(mon=>mon.id===player.save.activePokemonId)||player.save?.party?.find(mon=>mon.hp>0)||player.save?.party?.[0];}
+  function duelSide(player){
+    const party=Array.isArray(player.save?.party)?player.save.party:[],team=party.map(cloneMon).filter(Boolean);
+    if(!team.length)return null;
+    const selected=team.findIndex(mon=>mon.id===player.save.activePokemonId&&mon.hp>0),firstAlive=team.findIndex(mon=>mon.hp>0),index=selected>=0?selected:firstAlive>=0?firstAlive:0;
+    return {id:player.id,username:player.username,team,index,mon:team[index],hp:team[index].hp};
+  }
   function cloneMon(mon){return mon?{...mon,types:Array.isArray(mon.types)?[...mon.types]:[mon.type]}:null;}
   function duelFor(duel,viewerId){
     const mine=viewerId===duel.initiatorId?duel.initiator:duel.receiver,other=viewerId===duel.initiatorId?duel.receiver:duel.initiator;
     const publicMon=side=>({id:side.id,username:side.username,name:side.mon.name,speciesId:side.mon.speciesId,type:side.mon.type,types:side.mon.types,level:side.mon.level,hp:side.hp,maxHp:side.mon.maxHp,attack:side.mon.attack,defense:side.mon.defense,spAttack:side.mon.spAttack,spDefense:side.mon.spDefense,speed:side.mon.speed,moves:GameData.movesAtLevel(side.mon.speciesId,side.mon.level)});
-    return {id:duel.id,status:duel.status,initiatorId:duel.initiatorId,receiverId:duel.receiverId,initiatorName:duel.initiatorName,receiverName:duel.receiverName,initiatorReady:duel.initiatorReady,receiverReady:duel.receiverReady,reason:duel.reason||'',winnerId:duel.winnerId||null,turn:duel.turn||0,lastAction:duel.lastAction||'',nextActorId:duel.nextActorId||null,action:duel.action||null,mine:publicMon(mine),other:publicMon(other)};
+    const roster=side=>side.team.map((mon,index)=>({id:mon.id,name:mon.name,speciesId:mon.speciesId,level:mon.level,hp:side.hpFor[index],maxHp:mon.maxHp,active:index===side.index,fainted:side.hpFor[index]<=0}));
+    return {id:duel.id,status:duel.status,initiatorId:duel.initiatorId,receiverId:duel.receiverId,initiatorName:duel.initiatorName,receiverName:duel.receiverName,initiatorReady:duel.initiatorReady,receiverReady:duel.receiverReady,reason:duel.reason||'',winnerId:duel.winnerId||null,turn:duel.turn||0,lastAction:duel.lastAction||'',nextActorId:duel.nextActorId||null,action:duel.action||null,mine:publicMon(mine),other:publicMon(other),mineRoster:roster(mine),otherRoster:roster(other)};
   }
   function makeDuel(initiator,receiver){
-    const a=cloneMon(activeMon(initiator)),b=cloneMon(activeMon(receiver));
-    return {id:`duel-${Date.now().toString(36)}-${(++order).toString(36)}`,createdAt:Date.now(),initiatorId:initiator.id,receiverId:receiver.id,initiatorName:initiator.username,receiverName:receiver.username,initiator:{id:initiator.id,username:initiator.username,mon:a,hp:a.hp},receiver:{id:receiver.id,username:receiver.username,mon:b,hp:b.hp},initiatorReady:true,receiverReady:false,status:'pending',turn:0,lastAction:'',nextActorId:null,action:null};
+    const a=duelSide(initiator),b=duelSide(receiver);
+    if(!a||!b)return null;
+    a.hpFor=a.team.map(mon=>mon.hp);b.hpFor=b.team.map(mon=>mon.hp);
+    return {id:`duel-${Date.now().toString(36)}-${(++order).toString(36)}`,createdAt:Date.now(),initiatorId:initiator.id,receiverId:receiver.id,initiatorName:initiator.username,receiverName:receiver.username,initiator:a,receiver:b,initiatorReady:true,receiverReady:false,status:'pending',turn:0,lastAction:'',nextActorId:null,action:null};
   }
   function clearDuelTimer(duel){const timer=duelTimers.get(duel.id);if(timer){clearTimeout(timer);duelTimers.delete(duel.id);}}
   function chooseDuelMove(side){const moveIds=GameData.movesAtLevel(side.mon.speciesId,side.mon.level).filter(id=>GameData.MOVE_DEFS[id]);return moveIds[Math.floor(Math.random()*moveIds.length)]||'tackle';}
+  function nextDuelMon(side){
+    let next=-1;
+    for(let offset=1;offset<=side.team.length;offset++){
+      const candidate=(side.index+offset)%side.team.length;
+      if(side.hpFor[candidate]>0){next=candidate;break;}
+    }
+    if(next<0)return false;
+    side.index=next;side.mon=side.team[next];side.hp=side.hpFor[next];return true;
+  }
   function scheduleDuelTurn(duel,delay=900){
     clearDuelTimer(duel); if(duel.status!=='battle')return;
     const timer=setTimeout(()=>{duelTimers.delete(duel.id);performDuelTurn(duel,duel.nextActorId);},delay);duelTimers.set(duel.id,timer);
@@ -83,14 +100,19 @@ function createPresence({sessionValid,worldFile}) {
     if(!actor||!target||actor.hp<=0||target.hp<=0)return null;
     const moveId=requestedMoveId||chooseDuelMove(actor),move=GameData.MOVE_DEFS[moveId]||GameData.MOVE_DEFS.tackle;
     const result=GameData.calculateDamage(move,actor.mon,target.mon),beforeTarget=target.hp,beforeActor=actor.hp;
-    actor.hp=move.heal?Math.min(actor.mon.maxHp,actor.hp+move.heal):actor.hp;
-    target.hp=move.damage?Math.max(0,target.hp-result.damage):target.hp;
+    actor.hp=move.heal?Math.min(actor.mon.maxHp,actor.hp+move.heal):actor.hp;actor.hpFor[actor.index]=actor.hp;actor.mon.hp=actor.hp;
+    target.hp=move.damage?Math.max(0,target.hp-result.damage):target.hp;target.hpFor[target.index]=target.hp;target.mon.hp=target.hp;
     const relation=result.multiplier>=2?'属性克制！':result.multiplier===0?'没有效果。':result.multiplier<1?'效果较弱。':'';
     duel.turn=(duel.turn||0)+1;duel.nextActorId=target.id;
     duel.action={id:`${duel.id}-action-${duel.turn}`,actorId:actor.id,actorName:actor.username,actorMonName:actor.mon.name,targetId:target.id,moveId,moveName:move.name,type:move.type,damage:Math.max(0,beforeTarget-target.hp),heal:Math.max(0,actor.hp-beforeActor),multiplier:result.multiplier,targetHp:target.hp,actorHp:actor.hp};
     duel.lastAction=`${actor.username} 的 ${actor.mon.name} 使用了 ${move.name}${move.damage?`，造成 ${duel.action.damage} 点伤害`:''}${move.heal?`，回复 ${duel.action.heal} 点生命`:''}${relation?`，${relation}`:''}`;
-    if(target.hp<=0){duel.status='finished';duel.winnerId=actor.id;duel.reason=`${target.mon.name} 失去战斗能力`;clearDuelTimer(duel);}
-    else scheduleDuelTurn(duel,760);
+    if(target.hp<=0){
+      const defeatedName=target.mon.name;
+      if(nextDuelMon(target)){
+        duel.lastAction+=` ${defeatedName} 失去战斗能力，${target.mon.name} 接替登场。`;
+        duel.nextActorId=target.id;scheduleDuelTurn(duel,900);
+      }else{duel.status='finished';duel.winnerId=actor.id;duel.reason=`${defeatedName} 失去战斗能力，队伍已全部倒下`;clearDuelTimer(duel);}
+    } else scheduleDuelTurn(duel,760);
     broadcastDuel(duel);return duel.action;
   }
   function beginDuel(duel){
@@ -144,7 +166,7 @@ function createPresence({sessionValid,worldFile}) {
     if(!to||to.player.id===player.id)return {status:404,message:'这位玩家当前不在线'};
     if(from.battle||to.battle)return {status:409,message:'战斗中的玩家不能发起或接受人物对战'};
     for(const duel of duels.values())if(duel.status==='pending'||duel.status==='battle')if([duel.initiatorId,duel.receiverId].includes(player.id)||[duel.initiatorId,duel.receiverId].includes(targetId))return {status:409,message:'其中一位玩家已经在对战或等待确认'};
-    const duel=makeDuel(player,to.player);duels.set(duel.id,duel);broadcastDuel(duel);return {duel:duelFor(duel,player.id)};
+    const duel=makeDuel(player,to.player);if(!duel)return {status:409,message:'没有可出战的宝可梦'};duels.set(duel.id,duel);broadcastDuel(duel);return {duel:duelFor(duel,player.id)};
   }
   function respond(player,hash,duelId,accept){
     const duel=duels.get(duelId);if(!duel||duel.receiverId!==player.id)return {status:404,message:'对战邀请已失效'};

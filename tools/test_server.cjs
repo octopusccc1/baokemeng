@@ -50,7 +50,7 @@ scenario('three initial choices create exactly one partner, and a chosen starter
   for(const [index,starterId] of GameData.STARTERS.entries()){
     const player=await f.player(`新玩家${index}`,starterId);
     assert.equal(player.save.party.length,1);assert.equal(player.save.party[0].speciesId,starterId);
-    assert.equal(player.save.party[0].rarity,'S');assert.equal(player.save.items.rareCandy,3);assert.equal(player.save.items.gachaMaterial,999);assert.deepEqual(player.save.warehouse,[]);
+    assert.equal(player.save.party[0].rarity,'S');assert.equal(player.save.items.rareCandy,10);assert.equal(player.save.items.gachaMaterial,10);assert.deepEqual(player.save.warehouse,[]);
     const again=await f.request('/api/starter',{method:'POST',cookie:player.cookie,body:{starterId:'squirtle'}});
     assert.equal(again.status,409);
   }
@@ -131,8 +131,11 @@ scenario('online players share live names and positions without sharing their sa
 scenario('shared scene resources synchronize and players can confirm a duel',async f=>{
   const a=await f.player('同步甲','charmander'),b=await f.player('同步乙','squirtle');
   const upgraded=structuredClone(a.save);upgraded.party[0]=GameData.makePokemon('charmander',true,8);upgraded.activePokemonId=upgraded.party[0].id;
+  upgraded.party[0].hp=1;upgraded.party.push(GameData.makePokemon('pikachu',false,3,'F','gacha-pika-a'));
   const saved=await f.request('/api/save',{method:'PUT',cookie:a.cookie,body:{revision:a.revision,save:upgraded}});
   assert.equal(saved.status,200);
+  const opponent=structuredClone(b.save);opponent.party[0].hp=1;opponent.party.push(GameData.makePokemon('eevee',false,3,'F','gacha-eevee-b'));
+  const opponentSaved=await f.request('/api/save',{method:'PUT',cookie:b.cookie,body:{revision:b.revision,save:opponent}});assert.equal(opponentSaved.status,200);
   const streamA=await f.world(a.cookie,'client-sync-a-123456789'),streamB=await f.world(b.cookie,'client-sync-b-123456789');
   await streamA.nextData(value=>Array.isArray(value.players));await streamB.nextData(value=>Array.isArray(value.players));
   const collected=await f.request('/api/presence',{method:'POST',cookie:a.cookie,body:{clientId:'client-sync-a-123456789',x:a.save.player.x,y:a.save.player.y,battle:false,collect:['berry-a']}});
@@ -161,6 +164,9 @@ scenario('shared scene resources synchronize and players can confirm a duel',asy
   assert.equal(incoming.receiverReady,false);
   const accepted=await f.request('/api/duel/respond',{method:'POST',cookie:b.cookie,body:{duelId:invite.data.duel.id,accept:true}});
   assert.equal(accepted.status,200);assert.equal(accepted.data.duel.status,'battle');
+  assert.equal(accepted.data.duel.mineRoster.length,2);assert.equal(accepted.data.duel.otherRoster.length,2);
+  const forcedRotation=await f.request('/api/duel/action',{method:'POST',cookie:a.cookie,body:{duelId:invite.data.duel.id,moveId:'ember'}});
+  assert.equal(forcedRotation.status,200);assert.equal(forcedRotation.data.duel.otherRoster[0].fainted,true);assert.equal(forcedRotation.data.duel.otherRoster[1].active,true);
   const started=await streamA.nextData(value=>value.id===invite.data.duel.id&&value.status==='battle');assert.equal(started.other.username,'同步乙');
   const actionSeen=await streamB.nextData(value=>value.id===invite.data.duel.id&&value.turn===1);assert.equal(actionSeen.status,'battle');assert.ok(actionSeen.action?.moveName);assert.ok(actionSeen.action.damage>=0);
   streamA.close();streamB.close();

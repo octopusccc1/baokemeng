@@ -97,9 +97,10 @@ test('successful capture spends one ball, adds the correct partner, and removes 
 test('defeating wild Pokémon grants draw material, and warehouse stores, retrieves, and releases Pokémon', () => {
   const g=game(), c=g.start();
   c.hp=1;g.run('useMove("ember"); closeBattle()');
-  assert.equal(g.state.items.gachaMaterial,1000);
+  assert.equal(g.state.items.rareCandy,11);
+  assert.equal(g.state.items.gachaMaterial,11);
   g.run('drawGacha()');
-  assert.equal(g.state.items.gachaMaterial,999);
+  assert.equal(g.state.items.gachaMaterial,10);
   assert.equal(g.state.party.length,2);
   const id=g.state.party[1].id;
   g.run(`storePokemon("${id}")`);
@@ -110,6 +111,13 @@ test('defeating wild Pokémon grants draw material, and warehouse stores, retrie
   assert.equal(g.state.party.length,1);assert.equal(g.state.warehouse.length,0);
   const capturedGame=game(),wild=capturedGame.start();capturedGame.run('capturePokemon()');capturedGame.tick(1100);capturedGame.run('closeBattle(); releasePokemon("wild-eevee","party")');
   assert.equal(wild.captured,false);assert.doesNotThrow(()=>capturedGame.run('GameData.validateSave(GameData.snapshot(state))'));
+});
+
+test('battle drops use the requested probabilities and give increased experience', () => {
+  const data=require('../shared/game-data.js');
+  assert.deepEqual(data.rollBattleDrops(()=>.1),{rareCandy:1,gachaMaterial:1});
+  assert.deepEqual(data.rollBattleDrops(()=>.5),{rareCandy:0,gachaMaterial:0});
+  assert.ok(data.experienceReward({level:3,rarity:'B'},{damage:14})>17);
 });
 
 test('failed capture spends a ball, triggers one counterattack, and permits a retry', () => {

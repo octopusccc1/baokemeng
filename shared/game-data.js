@@ -162,12 +162,17 @@
   }
   function experienceReward(wild, action) {
     const level=Math.max(1,Math.floor(wild?.level||1)), power=action?.damage>=30?1.35:1;
-    return Math.max(1,Math.round((8+level*3)*rarityFactor(wild?.rarity)*power));
+    return Math.max(1,Math.round((8+level*3)*rarityFactor(wild?.rarity)*power*1.5));
+  }
+  function rollBattleDrops(random=Math.random) {
+    const rareCandy=random()<.30?1:0;
+    const gachaMaterial=random()<.20?1:0;
+    return {rareCandy,gachaMaterial};
   }
   function createSave(starterId) {
     if(!STARTERS.includes(starterId))throw new Error('请选择提供的三只初始宝可梦之一');
     const partner=makePokemon(starterId,true,4,'S');
-    return {version:1,starterId,player:{x:468,y:315,hp:100,hunger:78},day:1,minutes:360,bag:0,balls:10,items:{rareCandy:3,gachaMaterial:999},inventory:{},
+    return {version:1,starterId,player:{x:468,y:315,hp:100,hunger:78},day:1,minutes:360,bag:0,balls:10,items:{rareCandy:10,gachaMaterial:10},inventory:{},
       party:[partner],warehouse:[],activePokemonId:partner.id,collected:[],wild:WILD.map(c=>makeWildProgress(c)),history:[]};
   }
   function snapshot(state) {
@@ -245,5 +250,5 @@
     return {version:1,starterId:raw.starterId,player:{x:number(raw.player.x,44,916),y:number(raw.player.y,60,560),hp:number(raw.player.hp,0,100),hunger:number(raw.player.hunger,0,100)},
       day:number(raw.day,1,1000000,true),minutes:number(raw.minutes,0,1439.999999),bag,balls:number(raw.balls,0,10,true),items:{rareCandy:items.rareCandy||0,gachaMaterial:items.gachaMaterial||0},inventory,party,warehouse,activePokemonId:raw.activePokemonId,collected,wild,history:safeHistory};
   }
-  return {STARTERS,MAX_PARTY,RARITY_GRADES,RARITY_WEIGHTS,RARITY_INDEX,SPECIES,MOVE_DEFS,SPECIES_MOVES,SPECIES_LEARNSET,TYPE_EFFECTIVENESS,ITEM_DEFS,RESOURCES,WILD,GACHA_POOL,experienceForLevel,levelFromExperience,statsAtLevel,typeEffectiveness,calculateDamage,movesAtLevel,makePokemon,makeWildProgress,experienceReward,normalizeRarity,rarityFactor,rollRarity,createSave,snapshot,validateSave};
+  return {STARTERS,MAX_PARTY,RARITY_GRADES,RARITY_WEIGHTS,RARITY_INDEX,SPECIES,MOVE_DEFS,SPECIES_MOVES,SPECIES_LEARNSET,TYPE_EFFECTIVENESS,ITEM_DEFS,RESOURCES,WILD,GACHA_POOL,experienceForLevel,levelFromExperience,statsAtLevel,typeEffectiveness,calculateDamage,movesAtLevel,makePokemon,makeWildProgress,experienceReward,rollBattleDrops,normalizeRarity,rarityFactor,rollRarity,createSave,snapshot,validateSave};
 });

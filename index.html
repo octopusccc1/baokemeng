@@ -351,7 +351,7 @@
           <div class="stat-row"><span>饱食</span><span id="hungerText">78 / 100</span></div><div class="bar energy"><i id="hungerBar" style="width:78%"></i></div>
           <div class="stat-row"><span>背包</span><span id="bagText">0 / 12</span></div>
           <div class="stat-row"><span>精灵球</span><span id="ballsText">10 个</span></div>
-          <div class="stat-row"><span>抽卡材料</span><span id="gachaText">999 张</span></div>
+          <div class="stat-row"><span>抽卡材料</span><span id="gachaText">10 张</span></div>
         </section>
         <section class="side-card" data-panel="party">
           <div class="card-heading"><h2>同行伙伴</h2><span><small id="partyCount">1 / 6</small><button class="window-close" type="button" data-close-panel="party" aria-label="关闭同行伙伴">×</button></span></div>
@@ -367,9 +367,9 @@
           <div class="card-heading"><h2>包裹</h2><span><button id="bagBtn" class="bag-toggle" type="button" aria-expanded="false">打开</button><button class="window-close" type="button" data-close-panel="bag" aria-label="关闭包裹">×</button></span></div>
           <div id="bagPanel" class="bag-panel" hidden>
             <button id="rareCandyBtn" class="item-card" type="button">
-              <span class="item-icon" aria-hidden="true">✦</span><span class="item-copy"><strong>神奇糖果</strong><small id="rareCandyHint">给当前出战宝可梦使用，立即提升 1 级</small></span><span id="rareCandyCount" class="item-count">×3</span>
+              <span class="item-icon" aria-hidden="true">✦</span><span class="item-copy"><strong>神奇糖果</strong><small id="rareCandyHint">给当前出战宝可梦使用，立即提升 1 级</small></span><span id="rareCandyCount" class="item-count">×10</span>
             </button>
-            <button id="gachaBtn" class="item-card gacha-card" type="button"><span class="item-icon" aria-hidden="true">🎟️</span><span class="item-copy"><strong>宝可梦抽卡</strong><small id="gachaHint">消耗 1 张材料，随机获得一只宝可梦</small></span><span id="gachaCount" class="item-count">×999</span></button>
+            <button id="gachaBtn" class="item-card gacha-card" type="button"><span class="item-icon" aria-hidden="true">🎟️</span><span class="item-copy"><strong>宝可梦抽卡</strong><small id="gachaHint">消耗 1 张材料，随机获得一只宝可梦</small></span><span id="gachaCount" class="item-count">×10</span></button>
             <div id="materialList" class="material-list" aria-label="采集物品"></div>
           </div>
           <p id="bagHint" class="party-hint">打开包裹查看和使用道具</p>
@@ -389,7 +389,7 @@
         <button type="button" class="dock-btn" data-panel="status" aria-expanded="false" aria-controls="sideStack">🧭<span>状态</span></button>
         <button type="button" class="dock-btn" data-panel="party" aria-expanded="false" aria-controls="sideStack">👥<span>伙伴</span><b id="dockPartyCount" class="dock-badge">1</b></button>
         <button type="button" class="dock-btn" data-panel="warehouse" aria-expanded="false" aria-controls="sideStack">🗃️<span>仓库</span><b id="dockWarehouseCount" class="dock-badge">0</b></button>
-        <button type="button" class="dock-btn" data-panel="bag" aria-expanded="false" aria-controls="sideStack">🎒<span>物品</span><b id="dockBagCount" class="dock-badge">0</b></button>
+        <button type="button" class="dock-btn" data-panel="bag" aria-expanded="false" aria-controls="sideStack">🎒<span>物品</span><b id="dockBagCount" class="dock-badge">2</b></button>
         <button type="button" class="dock-btn" data-panel="log" aria-expanded="false" aria-controls="sideStack">📜<span>记录</span></button>
         <button type="button" class="dock-btn" data-panel="controls" aria-expanded="false" aria-controls="sideStack">⌨<span>操作</span></button>
       </nav>
@@ -534,7 +534,8 @@
       host.append(partySection);
       const storageSection=document.createElement('div');storageSection.className='warehouse-section';const storageTitle=document.createElement('h3');storageTitle.textContent=`仓库伙伴 · ${state.warehouse.length} 只`;storageSection.append(storageTitle);
       if(!state.warehouse.length){const empty=document.createElement('div');empty.className='party-empty';empty.textContent='仓库还是空的，捕捉或抽卡获得的多余伙伴会放在这里。';storageSection.append(empty);}
-      state.warehouse.forEach(mon=>{const row=document.createElement('div');row.className='warehouse-row';row.append(partyButton(mon,()=>{}));const canTake=!state.battle&&!state.battleBusy&&state.party.length<state.maxParty;row.append(warehouseAction('取出同行','',!canTake,()=>takePokemon(mon.id)),warehouseAction('放生','release',false,()=>releasePokemon(mon.id,'warehouse')));storageSection.append(row);});
+      const sortedWarehouse=[...state.warehouse].sort((a,b)=>{const rarity=(GameData.RARITY_INDEX?.[GameData.normalizeRarity(b.rarity)]||0)-(GameData.RARITY_INDEX?.[GameData.normalizeRarity(a.rarity)]||0);return rarity||((b.level||1)-(a.level||1))||String(a.name).localeCompare(String(b.name),'zh-CN');});
+      sortedWarehouse.forEach(mon=>{const row=document.createElement('div');row.className='warehouse-row';row.append(partyButton(mon,()=>{}));const canTake=!state.battle&&!state.battleBusy&&state.party.length<state.maxParty;row.append(warehouseAction('取出同行','',!canTake,()=>takePokemon(mon.id)),warehouseAction('放生','release',false,()=>releasePokemon(mon.id,'warehouse')));storageSection.append(row);});
       host.append(storageSection);
     }
     function storePokemon(id) {
@@ -558,7 +559,8 @@
       const mon=activePokemon(), count=Math.max(0,Math.floor(state.items?.rareCandy||0));
       $('rareCandyCount').textContent=`×${count}`;
       const gachaCount=Math.max(0,Math.floor(state.items?.gachaMaterial||0));$('gachaCount').textContent=`×${gachaCount}`;$('gachaBtn').disabled=!state.ready||state.battle||state.battleBusy||gachaCount<=0;
-      $('dockBagCount').textContent=state.bag;
+      const itemStacks=Object.values(state.inventory||{}).filter(amount=>Number.isInteger(amount)&&amount>0).length+(count>0?1:0)+(gachaCount>0?1:0);
+      $('dockBagCount').textContent=itemStacks;
       $('rareCandyHint').textContent=mon ? `给${mon.name}使用，立即提升 1 级` : '选择出战宝可梦后使用';
       $('rareCandyBtn').disabled=!state.ready||state.battle||state.battleBusy||!mon||mon.level>=99||count<=0;
       renderMaterials();
@@ -609,6 +611,16 @@
       layoutDockWindows();
       document.querySelectorAll('.dock-btn').forEach(button=>button.setAttribute('aria-expanded',String(button.dataset.panel===panel?false:button.getAttribute('aria-expanded')==='true')));
       if(!any)stack.dataset.open='';
+      if(panel==='bag'){$('bagPanel').hidden=true;$('bagBtn').setAttribute('aria-expanded','false');$('bagBtn').textContent='打开';}
+    }
+    function closeAllDockPanels() {
+      const stack=$('sideStack');
+      stack?.querySelectorAll('.side-card.active').forEach(card=>card.classList.remove('active'));
+      stack?.classList.remove('open');
+      if(stack)stack.dataset.open='';
+      $('bagPanel').hidden=true;$('bagBtn').setAttribute('aria-expanded','false');$('bagBtn').textContent='打开';
+      document.querySelectorAll('.dock-btn').forEach(button=>button.setAttribute('aria-expanded','false'));
+      layoutDockWindows();
     }
     function openDockPanel(panel) {
       const stack=$('sideStack'),card=stack.querySelector(`.side-card[data-panel="${panel}"]`);
@@ -625,6 +637,10 @@
         $('bagBtn').setAttribute('aria-expanded','true');
         $('bagBtn').textContent='收起';
         renderBag();
+      } else if(wasOpen&&panel==='bag') {
+        $('bagPanel').hidden=true;
+        $('bagBtn').setAttribute('aria-expanded','false');
+        $('bagBtn').textContent='打开';
       }
     }
     function layoutDockWindows() {
@@ -940,8 +956,9 @@
       $('battleMessage').textContent=`${mon.name} 使用${action.name}，${action.damage?`造成 ${result.damage} 点伤害`:''}${action.damage&&action.heal?'并':''}${action.heal?`回复 ${action.heal} 点生命`:''}。${relation}`;
       if(c.hp<=0){
         state.battleResolved=true;
-        const reward=GameData.experienceReward(c,action);gainExperience(mon,reward);state.items.gachaMaterial=(state.items.gachaMaterial||0)+1;
-        addLog(`击退了${GameData.normalizeRarity(c.rarity)}级野生${c.name}，${mon.name} 获得 ${reward} 经验，并掉落 1 张抽卡材料`); toast(`战斗胜利 · +${reward} 经验 · 抽卡材料 +1`);
+        const reward=GameData.experienceReward(c,action),drops=GameData.rollBattleDrops(Math.random);gainExperience(mon,reward);state.items.rareCandy=(state.items.rareCandy||0)+drops.rareCandy;state.items.gachaMaterial=(state.items.gachaMaterial||0)+drops.gachaMaterial;
+        const dropText=[drops.rareCandy?'神奇糖果 +1':'',drops.gachaMaterial?'抽卡材料 +1':''].filter(Boolean).join('、')||'本次没有额外掉落';
+        addLog(`击退了${GameData.normalizeRarity(c.rarity)}级野生${c.name}，${mon.name} 获得 ${reward} 经验，${dropText}`); toast(`战斗胜利 · +${reward} 经验 · ${dropText}`);
         $('battleMessage').textContent=`${c.name} 已失去战斗能力，无法捕捉。`;
         battleLater(closeBattle,1000);
       } else battleLater(()=>{
@@ -1070,7 +1087,7 @@
       $('reconnectBtn').hidden=!['connection','conflict'].includes(entryMode);
       $('reconnectBtn').textContent=entryMode==='conflict'?'重新载入存档':'重新连接';
     }
-    function showEntry(mode) { stopRealtime(); entryMode=mode; $('gameShell').inert=true; $('entryScreen').hidden=false; updateEntry(); }
+    function showEntry(mode) { stopRealtime(); closeAllDockPanels(); showDuelModal(false); entryMode=mode; $('gameShell').inert=true; $('entryScreen').hidden=false; updateEntry(); }
     function applyServerSave(data) {
       state.ready=false;clearTimeout(saveTimer);saveTimer=null;dirty=false;
       closeBattle();keys.clear();stopWalking();state.hoveredTarget=null;
@@ -1128,7 +1145,7 @@
       if(!saved||dirty){if($('entryScreen').hidden)state.ready=true;if(dirty&&state.ready&&!saveTimer)saveTimer=setTimeout(()=>{saveTimer=null;saveProgress();},5000);toast('存档未保存，请重试后再退出');return;}
       try{
         await api('/api/logout',{method:'POST',body:'{}'});
-        closeBattle();currentUser=null;clearTimeout(saveTimer);saveTimer=null;dirty=false;selectedStarter=null;
+        closeBattle();activeDuel=null;showDuelModal(false);closeAllDockPanels();currentUser=null;clearTimeout(saveTimer);saveTimer=null;dirty=false;selectedStarter=null;
         $('accountTools').hidden=true;$('usernameInput').value='';$('passwordInput').value='';showEntry('login');showEntryError('');
       }catch(error){state.ready=true;toast(error.message);}
     }
@@ -1175,7 +1192,9 @@
       $('playerHpText').textContent=`生命 ${Math.max(0,Math.round(mine.hp))} / ${mine.maxHp}`;$('playerHpBar').style.width=`${Math.max(0,mine.hp/mine.maxHp*100)}%`;$('enemyHpText').textContent=`生命 ${Math.max(0,Math.round(other.hp))} / ${other.maxHp}`;$('enemyHpBar').style.width=`${Math.max(0,other.hp/other.maxHp*100)}%`;
       const best=movesForDuel(mine).map(moveId=>MOVE_DEFS[moveId]).filter(Boolean).reduce((winner,move)=>!winner||GameData.typeEffectiveness(move.type,other.types||[other.type])>GameData.typeEffectiveness(winner.type,other.types||[other.type])?move:winner,null),bestMultiplier=best?GameData.typeEffectiveness(best.type,other.types||[other.type]):1;
       $('battleAdvantage').textContent=bestMultiplier>=2?`推荐${best.name} · 属性克制`:bestMultiplier===0?'当前招式对其无效':'属性相性：普通';
-      $('battleAutoNote').textContent='自动战斗 · 服务器按速度随机释放已学技能';
+      const mineRoster=Array.isArray(duel.mineRoster)?duel.mineRoster:[],otherRoster=Array.isArray(duel.otherRoster)?duel.otherRoster:[];
+      const mineIndex=Math.max(0,mineRoster.findIndex(mon=>mon.active)),otherIndex=Math.max(0,otherRoster.findIndex(mon=>mon.active));
+      $('battleAutoNote').textContent=`自动战斗 · 服务器按速度随机释放已学技能 · 双方队伍 ${mineIndex+1}/${mineRoster.length||1}、${otherIndex+1}/${otherRoster.length||1} 轮流登场`;
       if(duel.status==='finished'){
         const hasWinner=!!duel.winnerId,won=duel.winnerId===currentUser?.id; $('battleResult').hidden=false;$('battleResult').className=`battle-result ${hasWinner?(won?'win':'loss'):''}`;$('battleResult').textContent=hasWinner?(won?'你赢了！🎉 这场对战打得漂亮，继续保持！':'你输了，但这只是一次练习。调整技能和队伍，下次一定能赢！'):'对战结束，双方都辛苦了，下一场继续加油！';
         $('battleMessage').textContent=duel.reason||'本次对战结束。';
