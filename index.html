@@ -425,7 +425,7 @@
       resources:GameData.RESOURCES.map(r=>({...r})),
       creatures:GameData.WILD.map(c=>({...c,...GameData.makePokemon(c.id,false,c.level,c.rarity),id:c.id,captured:false}))
     };
-    let currentUser=null,saveRevision=0,dirty=false,editGeneration=0,saveTimer,savePromise=null,entryMode='register',entryBusy=false,selectedStarter=null;
+    let currentUser=null,saveRevision=0,dirty=false,editGeneration=0,saveTimer,savePromise=null,lastSavedSnapshot='',pendingSnapshot='',entryMode='register',entryBusy=false,selectedStarter=null;
     const remotePlayers=new Map();
     let liveSource=null,liveClientId=null,liveTimer=null,liveRetryTimer=null,liveGeneration=0,liveConnected=false,liveSending=false,lastPresence='',lastPresenceAt=0;
     const pendingWorldCollects=new Set(), pendingWorldWild=new Map();
@@ -1032,8 +1032,16 @@
       const el=$('saveStatus'); if(el.textContent!==message)el.textContent=message;
       el.className=`save-status ${kind}`;
     }
+    function snapshotKey() {
+      if(!state.ready||!currentUser)return '';
+      try{return JSON.stringify(GameData.snapshot(state));}catch{return '';}
+    }
     function scheduleSave() {
       if(!state.ready||!currentUser)return;
+      const current=snapshotKey();
+      // updateStats also runs during rendering. Only mark a save when the
+      // actual game snapshot differs from the saved or in-flight snapshot.
+      if(current && (current===lastSavedSnapshot || current===pendingSnapshot))return;
       dirty=true; editGeneration++;
       if(!savePromise)setSaveStatus('等待保存…','pending');
       if(!saveTimer)saveTimer=setTimeout(()=>{saveTimer=null;saveProgress();},1200);
@@ -1043,13 +1051,17 @@
       if(!currentUser||!dirty)return Promise.resolve(true);
       if(state.battleBusy){if(!saveTimer)saveTimer=setTimeout(()=>{saveTimer=null;saveProgress();},350);return Promise.resolve(false);}
       clearTimeout(saveTimer);saveTimer=null;
-      const generation=editGeneration,userId=currentUser.id,body=JSON.stringify({revision:saveRevision,save:GameData.snapshot(state)});
+      const generation=editGeneration,userId=currentUser.id,snapshot=GameData.snapshot(state),serialized=JSON.stringify(snapshot),body=JSON.stringify({revision:saveRevision,save:snapshot});
+      pendingSnapshot=serialized;
       setSaveStatus('正在保存…','pending');
       savePromise=(async()=>{
         try{
           const data=await api('/api/save',{method:'PUT',body});
           if(currentUser?.id!==userId)return false;
-          saveRevision=data.revision;dirty=editGeneration!==generation;
+          saveRevision=data.revision;
+          const changedDuringSave=editGeneration!==generation;
+          if(!changedDuringSave)lastSavedSnapshot=serialized;
+          dirty=changedDuringSave;
           setSaveStatus(dirty?'等待保存…':'已保存到服务器',dirty?'pending':'');return true;
         }catch(error){
           setSaveStatus('未保存 · 可点击重试','error');
@@ -1059,6 +1071,7 @@
           }
           return false;
         }finally{
+          if(pendingSnapshot===serialized)pendingSnapshot='';
           savePromise=null;
           if(dirty&&state.ready&&!saveTimer)saveTimer=setTimeout(()=>{saveTimer=null;saveProgress();},5000);
         }
@@ -1104,7 +1117,7 @@
       renderLog();renderActivePokemon();renderParty();updateStats();
       $('trainerName').textContent=currentUser.username;$('usernameBadge').textContent=`训练家 · ${currentUser.username}`;
       $('accountTools').hidden=false;$('entryScreen').hidden=true;$('gameShell').inert=false;$('passwordInput').value='';
-      state.ready=true;dirty=false;setSaveStatus('已保存到服务器');
+      state.ready=true;dirty=false;pendingSnapshot='';lastSavedSnapshot=snapshotKey();setSaveStatus('已保存到服务器');
       startRealtime();
     }
     async function connectServer() {
@@ -1145,7 +1158,7 @@
       if(!saved||dirty){if($('entryScreen').hidden)state.ready=true;if(dirty&&state.ready&&!saveTimer)saveTimer=setTimeout(()=>{saveTimer=null;saveProgress();},5000);toast('存档未保存，请重试后再退出');return;}
       try{
         await api('/api/logout',{method:'POST',body:'{}'});
-        closeBattle();activeDuel=null;showDuelModal(false);closeAllDockPanels();currentUser=null;clearTimeout(saveTimer);saveTimer=null;dirty=false;selectedStarter=null;
+        closeBattle();activeDuel=null;showDuelModal(false);closeAllDockPanels();currentUser=null;clearTimeout(saveTimer);saveTimer=null;dirty=false;pendingSnapshot='';lastSavedSnapshot='';selectedStarter=null;
         $('accountTools').hidden=true;$('usernameInput').value='';$('passwordInput').value='';showEntry('login');showEntryError('');
       }catch(error){state.ready=true;toast(error.message);}
     }
